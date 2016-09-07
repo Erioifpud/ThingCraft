@@ -1,5 +1,7 @@
 package link.redstone.thingcraft.gui;
 
+import link.redstone.thingcraft.proxy.CommonProxy;
+import link.redstone.thingcraft.util.ChatUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 
@@ -35,6 +37,7 @@ public class GuiChannel extends GuiScreen {
                 break;
             case 2:
                 //...
+                //ChatUtils.message(CommonProxy.apiKey);
                 break;
         }
     }

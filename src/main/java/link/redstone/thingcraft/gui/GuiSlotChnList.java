@@ -57,9 +57,9 @@ public class GuiSlotChnList extends GuiScrollingList {
         String id = StringUtils.stripControlCodes(String.valueOf(bc.getId()));
         String desc = StringUtils.stripControlCodes(bc.getDescription() == null ? "" : bc.getDescription());
         FontRenderer font = this.parent.getFontRenderer();
-        font.drawString(font.trimStringToWidth(name,    listWidth - 10), this.left + 3 , top +  2, 0xFFFFFF);
-        font.drawString(font.trimStringToWidth(id, listWidth - (5 + height)), this.left + 3 , top + 12, 0xCCCCCC);
-        font.drawString(font.trimStringToWidth(desc, listWidth - (5 + height)), this.left + 3 , top + 22, 0xCCCCCC);
+        font.drawString(font.trimStringToWidth(name,    listWidth - 10), this.left + 3 , slotTop +  2, 0xFFFFFF);
+        font.drawString(font.trimStringToWidth(id, listWidth - (5 + height)), this.left + 3 , slotTop + 12, 0xCCCCCC);
+        font.drawString(font.trimStringToWidth(desc, listWidth - (5 + height)), this.left + 3 , slotTop + 22, 0xCCCCCC);
 
     }
 }

@@ -1,5 +1,6 @@
 package link.redstone.thingcraft.gui;
 
+import link.redstone.thingcraft.proxy.CommonProxy;
 import link.redstone.thingcraft.util.ChatUtils;
 import link.redstone.thingcraft.util.RequestUtils;
 import net.minecraft.client.gui.GuiButton;
@@ -9,8 +10,6 @@ import scala.collection.mutable.StringBuilder;
 
 import java.io.IOException;
 import java.net.URL;
-
-import static link.redstone.thingcraft.ThingCraft.apiKey;
 
 /**
  * Created by Erioifpud on 16/9/5.
@@ -28,24 +27,25 @@ public class GuiCreateChn extends GuiScreen {
      * 8:tags
      * 9:url
      */
-    private GuiAdvTextField[] items = new GuiAdvTextField[18];
+    private GuiAdvTextField[] items = new GuiAdvTextField[17];
     @Override
     public void initGui() {
         Keyboard.enableRepeatEvents(true);
         for (int i = 0; i < 8; ++i) {
             String t = String.format("field%d", i);
-            items[10 + i] = new GuiAdvTextField(10 + i, fontRendererObj, width / 2, 10 + 20 * i, 100, 20, t, t);
+            int id = 9 + i;
+            items[id] = new GuiAdvTextField(id, fontRendererObj, width / 2, 10 + 20 * i, 100, 20, t, t);
         }
-        items[0] = new GuiAdvTextField(0, fontRendererObj, 10, 10, 100, 20, "api_key", "api key(required)");
-        items[1] = new GuiAdvTextField(1, fontRendererObj, 10, 30, 100, 20, "desc", "description");
-        items[2] = new GuiAdvTextField(2, fontRendererObj, 10, 50, 100, 20, "elevation", "elevation");
-        items[3] = new GuiAdvTextField(3, fontRendererObj, 10, 70, 100, 20, "latitude", "latitude");
-        items[4] = new GuiAdvTextField(4, fontRendererObj, 10, 90, 100, 20, "longitude", "longitude");
-        items[5] = new GuiAdvTextField(5, fontRendererObj, 10, 110, 100, 20, "metadata", "metadata");
-        items[6] = new GuiAdvTextField(6, fontRendererObj, 10, 130, 100, 20, "name", "name");
-        items[7] = new GuiAdvTextField(7, fontRendererObj, 10, 150, 100, 20, "public_flag", "public?");
-        items[8] = new GuiAdvTextField(8, fontRendererObj, 10, 170, 100, 20, "tags", "tags");
-        items[9] = new GuiAdvTextField(9, fontRendererObj, 10, 190, 100, 20, "url", "url");
+        //items[0] = new GuiAdvTextField(0, fontRendererObj, 10, 10, 100, 20, "api_key", "api key(required)");
+        items[0] = new GuiAdvTextField(1, fontRendererObj, 10, 10, 100, 20, "desc", "description");
+        items[1] = new GuiAdvTextField(2, fontRendererObj, 10, 30, 100, 20, "elevation", "elevation");
+        items[2] = new GuiAdvTextField(3, fontRendererObj, 10, 50, 100, 20, "latitude", "latitude");
+        items[3] = new GuiAdvTextField(4, fontRendererObj, 10, 70, 100, 20, "longitude", "longitude");
+        items[4] = new GuiAdvTextField(5, fontRendererObj, 10, 90, 100, 20, "metadata", "metadata");
+        items[5] = new GuiAdvTextField(6, fontRendererObj, 10, 110, 100, 20, "name", "name");
+        items[6] = new GuiAdvTextField(7, fontRendererObj, 10, 130, 100, 20, "public_flag", "public?");
+        items[7] = new GuiAdvTextField(8, fontRendererObj, 10, 150, 100, 20, "tags", "tags");
+        items[8] = new GuiAdvTextField(9, fontRendererObj, 10, 170, 100, 20, "url", "url");
         buttonList.add(new GuiButton(18, width / 2, 170, 100, 20, "Confirm"));
         buttonList.add(new GuiButton(19, width / 2, 190, 100, 20, "Cancel"));
     }
@@ -59,7 +59,7 @@ public class GuiCreateChn extends GuiScreen {
                 for (GuiAdvTextField tf : items) {
                     sb.append(tf.getKey()).append("=").append(tf.getText()).append("&");
                 }
-                sb.deleteCharAt(sb.length() - 1);
+                sb.append("api_key").append("=").append(CommonProxy.apiKey);
                 try {
                     RequestUtils.post(new URL("https://api.thingspeak.com/channels"), sb.toString());
                 } catch (Exception ex) {

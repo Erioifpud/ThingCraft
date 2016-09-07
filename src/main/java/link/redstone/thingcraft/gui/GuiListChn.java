@@ -3,6 +3,7 @@ package link.redstone.thingcraft.gui;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import link.redstone.thingcraft.bean.Channel;
+import link.redstone.thingcraft.proxy.CommonProxy;
 import link.redstone.thingcraft.util.ChatUtils;
 import link.redstone.thingcraft.util.RequestUtils;
 import net.minecraft.client.Minecraft;
@@ -21,6 +22,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static link.redstone.thingcraft.proxy.CommonProxy.apiKey;
+
 /**
  * Created by Erioifpud on 16/9/6.
  */
@@ -31,12 +34,47 @@ public class GuiListChn extends GuiScreen {
     private Channel selectedChn;
     private int listWidth;
     private ArrayList<Channel> chns;
-    private GuiTextField apiKey;
+    //private GuiTextField apiKey;
     private GuiButton deleteBtn;
     //private GuiButton confirmBtn;
 
     public GuiListChn() {
         this.chns = new ArrayList<Channel>();
+        if (!apiKey.equals("-1")) {
+            try {
+                String json = RequestUtils.get("https://api.thingspeak.com/channels.json", String.format("api_key=%s", apiKey));
+                Gson gson = new Gson();
+                Type chnType = new TypeToken<ArrayList<Channel>>() {
+                }.getType();
+                List<Channel> channels = gson.fromJson(json, chnType);
+                for (int i = 0; i < channels.size(); i++) {
+                    this.chns.add(channels.get(i));
+                }
+            } catch (IOException ex) {
+                ChatUtils.error(ex.toString());
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void initGui() {
+        //super.initGui();
+        int slotHeight = 35;
+        for (Channel bc : chns) {
+            listWidth = Math.max(listWidth, getFontRenderer().getStringWidth(bc.getName()) + 10);
+            listWidth = Math.max(listWidth, getFontRenderer().getStringWidth(String.valueOf(bc.getId())) + 5 + slotHeight);
+        }
+        listWidth = Math.min(listWidth, 150);
+        //listWidth = 150;
+        this.chnList = new GuiSlotChnList(this, chns, listWidth, slotHeight);
+        //buttonList.add(new GuiButton(20, 10, height - 49, listWidth, 20, "Confirm"));
+        deleteBtn = new GuiButton(21, 10, height - 29, listWidth, 20, "Delete (Hold ctrl)");
+        buttonList.add(deleteBtn);
+        //apiKey = new GuiTextField(0, getFontRenderer(), 12, height - 88 + 4 + 17, listWidth - 4, 14);
+        //apiKey.setFocused(true);
+        //apiKey.setCanLoseFocus(true);
+        updateCache();
     }
 
     @Override
@@ -48,7 +86,7 @@ public class GuiListChn extends GuiScreen {
         int left = ((this.width - this.listWidth - 38) / 2) + this.listWidth + 30;
         this.drawCenteredString(this.fontRendererObj, "Channel List", left, 16, 0xFFFFFF);
         super.drawScreen(mouseX, mouseY, partialTicks);
-        apiKey.drawTextBox();
+        //apiKey.drawTextBox();
     }
 
     @Override
@@ -78,33 +116,13 @@ public class GuiListChn extends GuiScreen {
     @Override
     protected void keyTyped(char typedChar, int keyCode) throws IOException {
         super.keyTyped(typedChar, keyCode);
-        apiKey.textboxKeyTyped(typedChar, keyCode);
+        //apiKey.textboxKeyTyped(typedChar, keyCode);
     }
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
-        apiKey.mouseClicked(mouseX, mouseY, mouseButton);
-    }
-
-    @Override
-    public void initGui() {
-        //super.initGui();
-        int slotHeight = 35;
-        for (Channel bc : chns) {
-            listWidth = Math.max(listWidth, getFontRenderer().getStringWidth(bc.getName()) + 10);
-            listWidth = Math.max(listWidth, getFontRenderer().getStringWidth(String.valueOf(bc.getId())) + 5 + slotHeight);
-        }
-        listWidth = Math.min(listWidth, 150);
-        listWidth = 150;
-        this.chnList = new GuiSlotChnList(this, chns, listWidth, slotHeight);
-        buttonList.add(new GuiButton(20, 10, height - 49, listWidth, 20, "Confirm"));
-        deleteBtn = new GuiButton(21, 10, height - 29, listWidth, 20, "Delete (Hold ctrl)");
-        buttonList.add(deleteBtn);
-        apiKey = new GuiTextField(0, getFontRenderer(), 12, height - 88 + 4 + 17, listWidth - 4, 14);
-        apiKey.setFocused(true);
-        apiKey.setCanLoseFocus(true);
-        updateCache();
+        //apiKey.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     @Override
@@ -115,14 +133,14 @@ public class GuiListChn extends GuiScreen {
         } else {
             deleteBtn.enabled = false;
         }
-        apiKey.updateCursorCounter();
+        //apiKey.updateCursorCounter();
     }
 
     private void reloadChns() {
         ArrayList<Channel> chns = chnList.getChns();
         chns.clear();
         try {
-            String json = RequestUtils.get("https://api.thingspeak.com/channels.json", String.format("api_key=%s", apiKey.getText()));
+            String json = RequestUtils.get("https://api.thingspeak.com/channels.json", String.format("api_key=%s", CommonProxy.apiKey));
             Gson gson = new Gson();
             Type chnType = new TypeToken<ArrayList<Channel>>() {
             }.getType();
@@ -152,7 +170,7 @@ public class GuiListChn extends GuiScreen {
             case 21:
                 if (selectedChn != null) {
                     //ChatUtils.message(selectedChn.getId());
-                    RequestUtils.delete(String.format("https://api.thingspeak.com/channels/%d", selectedChn.getId()), String.format("api_key=%s", apiKey.getText()));
+                    RequestUtils.delete(String.format("https://api.thingspeak.com/channels/%d", selectedChn.getId()), String.format("api_key=%s", CommonProxy.apiKey));
                     reloadChns();
                 }
                 break;

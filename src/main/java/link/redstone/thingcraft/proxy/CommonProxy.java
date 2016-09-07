@@ -35,7 +35,7 @@ public class CommonProxy {
     private void initConfig(FMLPreInitializationEvent event) {
         config = new Configuration(event.getSuggestedConfigurationFile());
         config.load();
-        apiKey = config.get(Configuration.CATEGORY_GENERAL, "your api key", "0").getString();
+        apiKey = config.get(Configuration.CATEGORY_GENERAL, "Apikey", "-1").getString();
         config.save();
     }
 
