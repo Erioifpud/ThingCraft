@@ -1,14 +1,14 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["ExampleDude"],
-  "credits": "The Forge and FML guys, for making this example",
+  "modid": "thingcraft",
+  "name": "ThingCraft",
+  "description": "...",
+  "version": "0.1",
+  "mcversion": "1.10",
+  "url": "http://redstone.link/",
+  "updateUrl": "http://redstone.link/",
+  "authorList": ["719823597"],
+  "credits": "The RedPixel Team",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []
