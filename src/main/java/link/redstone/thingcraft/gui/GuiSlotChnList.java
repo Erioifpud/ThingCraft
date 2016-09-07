@@ -53,9 +53,9 @@ public class GuiSlotChnList extends GuiScrollingList {
     @Override
     protected void drawSlot(int slotIdx, int entryRight, int slotTop, int height, Tessellator tess) {
         Channel bc = chns.get(slotIdx);
-        String name = StringUtils.stripControlCodes(bc.getName());
+        String name = StringUtils.stripControlCodes(bc.getName() == null ? "" : bc.getName());
         String id = StringUtils.stripControlCodes(String.valueOf(bc.getId()));
-        String desc = StringUtils.stripControlCodes(bc.getDescription());
+        String desc = StringUtils.stripControlCodes(bc.getDescription() == null ? "" : bc.getDescription());
         FontRenderer font = this.parent.getFontRenderer();
         font.drawString(font.trimStringToWidth(name,    listWidth - 10), this.left + 3 , top +  2, 0xFFFFFF);
         font.drawString(font.trimStringToWidth(id, listWidth - (5 + height)), this.left + 3 , top + 12, 0xCCCCCC);

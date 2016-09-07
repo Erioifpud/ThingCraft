@@ -18,7 +18,7 @@ public class GuiChannel extends GuiScreen {
     public void initGui() {
         buttonList.add(new GuiButton(0, width / 2 - 50, height / 2 - 20, 100, 20, "Create Channel"));
         buttonList.add(new GuiButton(1, width / 2 - 50, height / 2, 100, 20, "List Channel"));
-        buttonList.add(new GuiButton(2, width / 2 - 50, height / 2 + 20, 100, 20, "Delete Channel"));
+        buttonList.add(new GuiButton(2, width / 2 - 50, height / 2 + 20, 100, 20, "..."));
     }
 
     @Override
@@ -34,7 +34,7 @@ public class GuiChannel extends GuiScreen {
                 mc.displayGuiScreen(new GuiListChn());
                 break;
             case 2:
-                //delete
+                //...
                 break;
         }
     }

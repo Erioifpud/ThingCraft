@@ -57,4 +57,25 @@ public class RequestUtils {
         input.close();
         return buffer.toString();
     }
+
+    public static String delete(String url, String content) throws IOException {
+        String urlNameString = url + "?" + content;
+        URL newUrl = new URL(urlNameString);
+        HttpURLConnection connection = (HttpURLConnection) newUrl.openConnection();
+        connection.setRequestMethod("DELETE");
+        connection.setRequestProperty("Host", "api.thingspeak.com");
+        connection.setRequestProperty("Content-Length", "" + content.getBytes().length);
+        connection.setRequestProperty("Connection", "close");
+        connection.setRequestProperty("User-Agent", "Paw/2.3.1 (Macintosh; OS X/10.11.4) GCDHTTPRequest");
+        BufferedReader input =
+                new BufferedReader(new InputStreamReader(
+                        connection.getInputStream()));
+        StringBuilder buffer = new StringBuilder();
+        for (String line; (line = input.readLine()) != null; ) {
+            buffer.append(line);
+            buffer.append("\n");
+        }
+        input.close();
+        return buffer.toString();
+    }
 }

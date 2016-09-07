@@ -32,6 +32,7 @@ public class GuiListChn extends GuiScreen {
     private int listWidth;
     private ArrayList<Channel> chns;
     private GuiTextField apiKey;
+    private GuiButton deleteBtn;
     //private GuiButton confirmBtn;
 
     public GuiListChn() {
@@ -98,6 +99,8 @@ public class GuiListChn extends GuiScreen {
         listWidth = 150;
         this.chnList = new GuiSlotChnList(this, chns, listWidth, slotHeight);
         buttonList.add(new GuiButton(20, 10, height - 49, listWidth, 20, "Confirm"));
+        deleteBtn = new GuiButton(21, 10, height - 29, listWidth, 20, "Delete (Hold ctrl)");
+        buttonList.add(deleteBtn);
         apiKey = new GuiTextField(0, getFontRenderer(), 12, height - 88 + 4 + 17, listWidth - 4, 14);
         apiKey.setFocused(true);
         apiKey.setCanLoseFocus(true);
@@ -107,6 +110,11 @@ public class GuiListChn extends GuiScreen {
     @Override
     public void updateScreen() {
         super.updateScreen();
+        if (GuiScreen.isCtrlKeyDown()) {
+            deleteBtn.enabled = true;
+        } else {
+            deleteBtn.enabled = false;
+        }
         apiKey.updateCursorCounter();
     }
 
@@ -140,6 +148,13 @@ public class GuiListChn extends GuiScreen {
         switch (button.id) {
             case 20:
                 reloadChns();
+                break;
+            case 21:
+                if (selectedChn != null) {
+                    //ChatUtils.message(selectedChn.getId());
+                    RequestUtils.delete(String.format("https://api.thingspeak.com/channels/%d", selectedChn.getId()), String.format("api_key=%s", apiKey.getText()));
+                    reloadChns();
+                }
                 break;
         }
         super.actionPerformed(button);
@@ -268,7 +283,7 @@ public class GuiListChn extends GuiScreen {
                     if (!(part instanceof TextComponentString)) {
                         continue;
                     }
-                    k += GuiListChn.this.fontRendererObj.getStringWidth(((TextComponentString)part).getText());
+                    k += GuiListChn.this.fontRendererObj.getStringWidth(((TextComponentString) part).getText());
                     if (k >= x) {
                         GuiListChn.this.handleComponentClick(part);
                         break;
