@@ -21,7 +21,31 @@ public class RequestUtils {
         connection.setRequestProperty("Connection", "close");
         connection.setRequestProperty("User-Agent", "Paw/2.3.1 (Macintosh; OS X/10.11.4) GCDHTTPRequest");
         connection.setUseCaches(false);
-        connection.setDoInput(true);//guan jian
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+        DataOutputStream output = new DataOutputStream(connection.getOutputStream());
+        output.writeBytes(content);
+        output.flush();
+        output.close();
+        BufferedReader input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        StringBuffer buffer = new StringBuffer();
+        for (String line; (line = input.readLine()) != null; ) {
+            buffer.append(line);
+            buffer.append("\n");
+        }
+        input.close();
+        return buffer.toString();
+    }
+
+    public static String put(URL url, String content) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+        connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Host", "api.thingspeak.com");
+        connection.setRequestProperty("Content-Length", "" + content.getBytes().length);
+        connection.setRequestProperty("Connection", "close");
+        connection.setRequestProperty("User-Agent", "Paw/2.3.1 (Macintosh; OS X/10.11.4) GCDHTTPRequest");
+        connection.setUseCaches(false);
+        connection.setDoInput(true);
         connection.setDoOutput(true);
         DataOutputStream output = new DataOutputStream(connection.getOutputStream());
         output.writeBytes(content);

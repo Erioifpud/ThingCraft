@@ -2,7 +2,9 @@ package link.redstone.thingcraft.proxy;
 
 import link.redstone.thingcraft.ThingCraft;
 import link.redstone.thingcraft.block.BlockChannel;
+import link.redstone.thingcraft.block.BlockTransmitter;
 import link.redstone.thingcraft.gui.GuiConfigThingCraft;
+import link.redstone.thingcraft.tile.TileEntityTransmitter;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -12,6 +14,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 /**
  * Created by Erioifpud on 16/9/5.
@@ -20,6 +23,7 @@ public class CommonProxy {
     public static Configuration config;
     public static String apiKey;
     public static BlockChannel channel;
+    public static BlockTransmitter transmitter;
 
     public void init(FMLInitializationEvent event) {
         registerEventListeners();
@@ -28,10 +32,16 @@ public class CommonProxy {
     public void preInit(FMLPreInitializationEvent event) {
         initConfig(event);
         registerBlocks();
+        registerTileEntities();
     }
 
     private void registerBlocks() {
         channel = new BlockChannel();
+        transmitter = new BlockTransmitter();
+    }
+
+    private void registerTileEntities() {
+        GameRegistry.registerTileEntity(TileEntityTransmitter.class, TileEntityTransmitter.ENTITY_NAME);
     }
 
     private void initConfig(FMLPreInitializationEvent event) {
