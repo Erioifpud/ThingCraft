@@ -26,19 +26,14 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import scala.annotation.meta.field;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import static link.redstone.thingcraft.proxy.CommonProxy.channel;
-import static net.minecraft.realms.Tezzelator.t;
 
 /**
  * Created by Erioifpud on 16/9/7.
@@ -55,6 +50,7 @@ public class BlockTransmitter extends BlockContainer {
 
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
         UpdateTask ut = new UpdateTask(worldIn, pos);
+        ut.start();
 
         /*TileEntityTransmitter t = (TileEntityTransmitter) worldIn.getTileEntity(pos);
         if (t != null && worldIn.isBlockPowered(pos)) {
@@ -122,10 +118,10 @@ public class BlockTransmitter extends BlockContainer {
     private class UpdateTask extends Thread {
         private World world;
         private BlockPos pos;
+
         UpdateTask(World world, BlockPos pos) {
             this.world = world;
             this.pos = pos;
-            start();
         }
 
         public void run() {
@@ -133,6 +129,7 @@ public class BlockTransmitter extends BlockContainer {
             if (t != null && world.isBlockPowered(pos)) {
                 try {
                     String json = RequestUtils.get("https://api.thingspeak.com/channels.json", String.format("api_key=%s", CommonProxy.apiKey));
+                    //String json = ThingSpeak.getChannelList(String.format("api_key=%s", CommonProxy.apiKey));
                     Gson gson = new Gson();
                     Type chnType = new TypeToken<ArrayList<Channel>>() {
                     }.getType();
@@ -154,9 +151,6 @@ public class BlockTransmitter extends BlockContainer {
                         RequestUtils.post(url, sb.toString());
                         world.playSound(null, pos, SoundEvents.BLOCK_ANVIL_HIT, SoundCategory.BLOCKS, 1.0F, 0.6F);
                     }
-                } catch (MalformedURLException ex) {
-                    ChatUtils.error(ex.toString());
-                    ex.printStackTrace();
                 } catch (IOException ex) {
                     ChatUtils.error(ex.toString());
                     ex.printStackTrace();

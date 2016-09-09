@@ -1,14 +1,11 @@
 package link.redstone.thingcraft.gui;
 
-import link.redstone.thingcraft.proxy.CommonProxy;
 import link.redstone.thingcraft.tile.TileEntityTransmitter;
 import link.redstone.thingcraft.util.ChatUtils;
-import link.redstone.thingcraft.util.RequestUtils;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 
 import java.io.IOException;
-import java.net.URL;
 
 /**
  * Created by Erioifpud on 16/9/8.

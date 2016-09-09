@@ -16,6 +16,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.client.GuiScrollingList;
 import org.lwjgl.input.Mouse;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -40,15 +41,16 @@ public class GuiListChn extends GuiScreen {
 
     public GuiListChn() {
         this.chns = new ArrayList<Channel>();
-        if (!apiKey.equals("-1")) {
+        if (!CommonProxy.apiKey.equals("-1")) {
             try {
-                String json = RequestUtils.get("https://api.thingspeak.com/channels.json", String.format("api_key=%s", apiKey));
+                String json = RequestUtils.get("https://api.thingspeak.com/channels.json", String.format("api_key=%s", CommonProxy.apiKey));
+                //String json = ThingSpeak.getChannelList(String.format("api_key=%s", CommonProxy.apiKey));
                 Gson gson = new Gson();
                 Type chnType = new TypeToken<ArrayList<Channel>>() {
                 }.getType();
                 List<Channel> channels = gson.fromJson(json, chnType);
                 for (int i = 0; i < channels.size(); i++) {
-                    this.chns.add(channels.get(i));
+                    chns.add(channels.get(i));
                 }
             } catch (IOException ex) {
                 ChatUtils.error(ex.toString());
@@ -137,7 +139,7 @@ public class GuiListChn extends GuiScreen {
     }
 
     private void reloadChns() {
-        ArrayList<Channel> chns = chnList.getChns();
+        ArrayList<Channel> tmpChns = chnList.getChns();
         chns.clear();
         try {
             String json = RequestUtils.get("https://api.thingspeak.com/channels.json", String.format("api_key=%s", CommonProxy.apiKey));
@@ -146,14 +148,13 @@ public class GuiListChn extends GuiScreen {
             }.getType();
             List<Channel> channels = gson.fromJson(json, chnType);
             for (int i = 0; i < channels.size(); i++) {
-                chns.add(channels.get(i));
+                tmpChns.add(channels.get(i));
             }
+            chns = tmpChns;
         } catch (IOException ex) {
             ChatUtils.error(ex.toString());
             ex.printStackTrace();
         }
-        this.chns = chns;
-
     }
 
     @Override
@@ -168,11 +169,8 @@ public class GuiListChn extends GuiScreen {
                 reloadChns();
                 break;
             case 21:
-                if (selectedChn != null) {
-                    //ChatUtils.message(selectedChn.getId());
-                    RequestUtils.delete(String.format("https://api.thingspeak.com/channels/%d", selectedChn.getId()), String.format("api_key=%s", CommonProxy.apiKey));
-                    reloadChns();
-                }
+                DeleteTask dt = new DeleteTask();
+                dt.start();
                 break;
         }
         super.actionPerformed(button);
@@ -307,6 +305,25 @@ public class GuiListChn extends GuiScreen {
                         break;
                     }
                 }
+            }
+        }
+    }
+
+    private class DeleteTask extends Thread {
+        @Override
+        public void run() {
+            if (selectedChn != null) {
+                try {
+                    RequestUtils.delete(String.format("https://api.thingspeak.com/channels/%d", selectedChn.getId()), String.format("api_key=%s", CommonProxy.apiKey));
+                    ChatUtils.message("finished");
+                } catch (FileNotFoundException ex) {
+                    ChatUtils.error(ex.toString());
+                    ex.printStackTrace();
+                } catch (IOException ex) {
+                    ChatUtils.error(ex.toString());
+                    ex.printStackTrace();
+                }
+                reloadChns();
             }
         }
     }

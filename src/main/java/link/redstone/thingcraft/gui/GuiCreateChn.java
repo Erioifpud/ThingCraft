@@ -55,17 +55,8 @@ public class GuiCreateChn extends GuiScreen {
         super.actionPerformed(button);
         switch (button.id) {
             case 18:
-                StringBuilder sb = new StringBuilder("");
-                for (GuiAdvTextField tf : items) {
-                    sb.append(tf.getKey()).append("=").append(tf.getText()).append("&");
-                }
-                sb.append("api_key").append("=").append(CommonProxy.apiKey);
-                try {
-                    RequestUtils.post(new URL("https://api.thingspeak.com/channels"), sb.toString());
-                } catch (Exception ex) {
-                    ChatUtils.error(ex.toString());
-                    ex.printStackTrace();
-                }
+                CreateTask ct = new CreateTask();
+                ct.start();
                 mc.displayGuiScreen(null);
                 break;
             case 19:
@@ -109,5 +100,24 @@ public class GuiCreateChn extends GuiScreen {
     @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
+    }
+
+    private class CreateTask extends Thread {
+
+        @Override
+        public void run() {
+            StringBuilder sb = new StringBuilder("");
+            for (GuiAdvTextField tf : items) {
+                sb.append(tf.getKey()).append("=").append(tf.getText()).append("&");
+            }
+            sb.append("api_key").append("=").append(CommonProxy.apiKey);
+            try {
+                RequestUtils.post(new URL("https://api.thingspeak.com/channels"), sb.toString());
+                ChatUtils.message("finished");
+            } catch (Exception ex) {
+                ChatUtils.error(ex.toString());
+                ex.printStackTrace();
+            }
+        }
     }
 }
