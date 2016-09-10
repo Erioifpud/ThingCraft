@@ -144,11 +144,13 @@ public class BlockTransmitter extends BlockContainer {
                         }
                     }
                     if (channel != null) {
-                        String link = "https://api.thingspeak.com/update";
-                        URL url = new URL(link);
+                        //String link = "https://api.thingspeak.com/update";
+                        //URL url = new URL(link);
                         StringBuilder sb = new StringBuilder();
                         sb.append("api_key=").append(writeKey).append("&field").append(t.getFieldId()).append("=").append(t.getResult());
-                        RequestUtils.post(url, sb.toString());
+                        //RequestUtils.post(url, sb.toString());
+                        RequestUtils.http("https://api.thingspeak.com/update", "POST", sb.toString());
+                        ChatUtils.message(this.getName() + " finished");
                         world.playSound(null, pos, SoundEvents.BLOCK_ANVIL_HIT, SoundCategory.BLOCKS, 1.0F, 0.6F);
                     }
                 } catch (IOException ex) {

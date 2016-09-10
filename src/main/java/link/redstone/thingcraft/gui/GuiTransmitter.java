@@ -32,6 +32,7 @@ public class GuiTransmitter extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         channel.drawTextBox();
         field.drawTextBox();
@@ -61,9 +62,9 @@ public class GuiTransmitter extends GuiScreen {
         switch (button.id) {
             case 10:
                 try {
-                    tile.setChannelId(Integer.parseInt(channel.getText()));
-                    tile.setFieldId(Integer.parseInt(field.getText()));
-                    tile.setResult(Integer.parseInt(result.getText()));
+                    tile.setChannelId(channel.getText().isEmpty() ?  tile.getChannelId() : Integer.parseInt(channel.getText()));
+                    tile.setFieldId(field.getText().isEmpty() ?  tile.getFieldId() : Integer.parseInt(field.getText()));
+                    tile.setResult(result.getText().isEmpty() ?  tile.getResult() : Integer.parseInt(result.getText()));
                     mc.displayGuiScreen(null);
                 } catch (NumberFormatException ex) {
                     ChatUtils.error(ex.toString());
@@ -88,5 +89,10 @@ public class GuiTransmitter extends GuiScreen {
     @Override
     public void onGuiClosed() {
         super.onGuiClosed();
+    }
+
+    @Override
+    public boolean doesGuiPauseGame() {
+        return false;
     }
 }

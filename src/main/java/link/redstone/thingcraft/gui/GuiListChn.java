@@ -7,7 +7,10 @@ import link.redstone.thingcraft.proxy.CommonProxy;
 import link.redstone.thingcraft.util.ChatUtils;
 import link.redstone.thingcraft.util.RequestUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiUtilRenderComponents;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.text.ITextComponent;
@@ -19,11 +22,8 @@ import org.lwjgl.input.Mouse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import static link.redstone.thingcraft.proxy.CommonProxy.apiKey;
 
 /**
  * Created by Erioifpud on 16/9/6.
@@ -44,7 +44,8 @@ public class GuiListChn extends GuiScreen {
         if (!CommonProxy.apiKey.equals("-1")) {
             try {
                 String json = RequestUtils.get("https://api.thingspeak.com/channels.json", String.format("api_key=%s", CommonProxy.apiKey));
-                //String json = ThingSpeak.getChannelList(String.format("api_key=%s", CommonProxy.apiKey));
+                //String json = RequestUtils.http("https://api.thingspeak.com/channels.json", "GET", String.format("api_key=%s", CommonProxy.apiKey));
+                //System.out.println(json);
                 Gson gson = new Gson();
                 Type chnType = new TypeToken<ArrayList<Channel>>() {
                 }.getType();
@@ -73,6 +74,7 @@ public class GuiListChn extends GuiScreen {
         //buttonList.add(new GuiButton(20, 10, height - 49, listWidth, 20, "Confirm"));
         deleteBtn = new GuiButton(21, 10, height - 29, listWidth, 20, "Delete (Hold ctrl)");
         buttonList.add(deleteBtn);
+        buttonList.add(new GuiButton(20, 10, height - 49, listWidth, 20, "Cancel"));
         //apiKey = new GuiTextField(0, getFontRenderer(), 12, height - 88 + 4 + 17, listWidth - 4, 14);
         //apiKey.setFocused(true);
         //apiKey.setCanLoseFocus(true);
@@ -130,7 +132,7 @@ public class GuiListChn extends GuiScreen {
     @Override
     public void updateScreen() {
         super.updateScreen();
-        if (GuiScreen.isCtrlKeyDown()) {
+        if (selected != -1 && selectedChn != null && GuiScreen.isCtrlKeyDown()) {
             deleteBtn.enabled = true;
         } else {
             deleteBtn.enabled = false;
@@ -139,10 +141,13 @@ public class GuiListChn extends GuiScreen {
     }
 
     private void reloadChns() {
+        selected = -1;
+        selectedChn = null;
         ArrayList<Channel> tmpChns = chnList.getChns();
         chns.clear();
         try {
             String json = RequestUtils.get("https://api.thingspeak.com/channels.json", String.format("api_key=%s", CommonProxy.apiKey));
+            //String json = RequestUtils.http("https://api.thingspeak.com/channels.json", "GET", String.format("api_key=%s", CommonProxy.apiKey));
             Gson gson = new Gson();
             Type chnType = new TypeToken<ArrayList<Channel>>() {
             }.getType();
@@ -166,7 +171,7 @@ public class GuiListChn extends GuiScreen {
     protected void actionPerformed(GuiButton button) throws IOException {
         switch (button.id) {
             case 20:
-                reloadChns();
+                mc.displayGuiScreen(null);
                 break;
             case 21:
                 DeleteTask dt = new DeleteTask();
@@ -309,13 +314,19 @@ public class GuiListChn extends GuiScreen {
         }
     }
 
+    @Override
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
+
     private class DeleteTask extends Thread {
         @Override
         public void run() {
             if (selectedChn != null) {
                 try {
-                    RequestUtils.delete(String.format("https://api.thingspeak.com/channels/%d", selectedChn.getId()), String.format("api_key=%s", CommonProxy.apiKey));
-                    ChatUtils.message("finished");
+                    //RequestUtils.delete(String.format("https://api.thingspeak.com/channels/%d", selectedChn.getId()), String.format("api_key=%s", CommonProxy.apiKey));
+                    RequestUtils.http(String.format("https://api.thingspeak.com/channels/%d", selectedChn.getId()), "DELETE", String.format("api_key=%s", CommonProxy.apiKey));
+                    ChatUtils.message(this.getName() + " finished");
                 } catch (FileNotFoundException ex) {
                     ChatUtils.error(ex.toString());
                     ex.printStackTrace();

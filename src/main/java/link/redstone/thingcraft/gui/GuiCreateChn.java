@@ -67,6 +67,7 @@ public class GuiCreateChn extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         for (int i = 0; i < items.length; i++) {
             items[i].drawTextBox();
@@ -98,6 +99,11 @@ public class GuiCreateChn extends GuiScreen {
     }
 
     @Override
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
+
+    @Override
     public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
     }
@@ -112,8 +118,9 @@ public class GuiCreateChn extends GuiScreen {
             }
             sb.append("api_key").append("=").append(CommonProxy.apiKey);
             try {
-                RequestUtils.post(new URL("https://api.thingspeak.com/channels"), sb.toString());
-                ChatUtils.message("finished");
+                //RequestUtils.post(new URL("https://api.thingspeak.com/channels"), sb.toString());
+                RequestUtils.http("https://api.thingspeak.com/channels", "POST", sb.toString());
+                ChatUtils.message(this.getName() + " finished");
             } catch (Exception ex) {
                 ChatUtils.error(ex.toString());
                 ex.printStackTrace();

@@ -20,7 +20,7 @@ public class GuiChannel extends GuiScreen {
     public void initGui() {
         buttonList.add(new GuiButton(0, width / 2 - 50, height / 2 - 20, 100, 20, "Create Channel"));
         buttonList.add(new GuiButton(1, width / 2 - 50, height / 2, 100, 20, "List Channel"));
-        buttonList.add(new GuiButton(2, width / 2 - 50, height / 2 + 20, 100, 20, "..."));
+        buttonList.add(new GuiButton(2, width / 2 - 50, height / 2 + 20, 100, 20, "Cancel"));
     }
 
     @Override
@@ -36,8 +36,7 @@ public class GuiChannel extends GuiScreen {
                 mc.displayGuiScreen(new GuiListChn());
                 break;
             case 2:
-                //...
-                //ChatUtils.message(CommonProxy.apiKey);
+                mc.displayGuiScreen(null);
                 break;
         }
     }
@@ -53,5 +52,9 @@ public class GuiChannel extends GuiScreen {
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    @Override
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
 
 }
