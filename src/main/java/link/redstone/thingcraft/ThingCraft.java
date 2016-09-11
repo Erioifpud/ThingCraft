@@ -2,6 +2,9 @@ package link.redstone.thingcraft;
 
 import link.redstone.thingcraft.block.BlockChannel;
 import link.redstone.thingcraft.proxy.ClientProxy;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -23,9 +26,15 @@ public class ThingCraft {
     public static ClientProxy proxy;
     public static final String MODID = "thingcraft";
     public static final String VERSION = "0.1";
+    public static Tessellator tessellator;
+    public static VertexBuffer vertexbuffer;
+    public static Minecraft mc;
 
     public ThingCraft() {
         instance = this;
+        tessellator = Tessellator.getInstance();
+        vertexbuffer = tessellator.getBuffer();
+        mc = Minecraft.getMinecraft();
     }
 
     @Mod.EventHandler

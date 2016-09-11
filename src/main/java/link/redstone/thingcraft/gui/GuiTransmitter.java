@@ -65,6 +65,7 @@ public class GuiTransmitter extends GuiScreen {
                     tile.setChannelId(channel.getText().isEmpty() ?  tile.getChannelId() : Integer.parseInt(channel.getText()));
                     tile.setFieldId(field.getText().isEmpty() ?  tile.getFieldId() : Integer.parseInt(field.getText()));
                     tile.setResult(result.getText().isEmpty() ?  tile.getResult() : Integer.parseInt(result.getText()));
+                    tile.updateVal();
                     mc.displayGuiScreen(null);
                 } catch (NumberFormatException ex) {
                     ChatUtils.error(ex.toString());

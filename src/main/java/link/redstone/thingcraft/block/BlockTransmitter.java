@@ -7,6 +7,7 @@ import link.redstone.thingcraft.bean.Channel;
 import link.redstone.thingcraft.gui.GuiTransmitter;
 import link.redstone.thingcraft.proxy.CommonProxy;
 import link.redstone.thingcraft.tile.TileEntityTransmitter;
+import link.redstone.thingcraft.tile.TileEntityTransmitterRenderer;
 import link.redstone.thingcraft.util.ChatUtils;
 import link.redstone.thingcraft.util.RequestUtils;
 import net.minecraft.block.Block;
@@ -14,9 +15,12 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
@@ -24,16 +28,23 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.Sys;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static sun.audio.AudioPlayer.player;
 
 /**
  * Created by Erioifpud on 16/9/7.
@@ -46,6 +57,7 @@ public class BlockTransmitter extends BlockContainer {
         setUnlocalizedName(name);
         setCreativeTab(ThingCraft.thingCraftTab);
         GameRegistry.registerBlock(this, name);
+        //GameRegistry.register(new ItemBlock(this), getRegistryName());
     }
 
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn) {
@@ -103,7 +115,15 @@ public class BlockTransmitter extends BlockContainer {
         TileEntity tileentity = worldIn.getTileEntity(pos);
         if (tileentity instanceof TileEntityTransmitter) {
             TileEntityTransmitter t = (TileEntityTransmitter) worldIn.getTileEntity(pos);
-            Minecraft.getMinecraft().displayGuiScreen(new GuiTransmitter(t));
+            if (GuiScreen.isCtrlKeyDown()) {
+                if (heldItem != null) {
+                    ((TileEntityTransmitter) tileentity).setStack(heldItem);
+                } else {
+                    ((TileEntityTransmitter) tileentity).setStack(null);
+                }
+            } else {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiTransmitter(t));
+            }
             worldIn.notifyBlockOfStateChange(pos, worldIn.getBlockState(pos).getBlock());
             return true;
         } else {
@@ -111,9 +131,9 @@ public class BlockTransmitter extends BlockContainer {
         }
     }
 
-    public EnumBlockRenderType getRenderType(IBlockState state) {
+    /*public EnumBlockRenderType getRenderType(IBlockState state) {
         return EnumBlockRenderType.MODEL;
-    }
+    }*/
 
     private class UpdateTask extends Thread {
         private World world;
@@ -159,6 +179,22 @@ public class BlockTransmitter extends BlockContainer {
                 }
             }
         }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess worldIn, BlockPos pos, EnumFacing side) {
+        return false;
+    }
+
+    @Override
+    public boolean isBlockNormalCube(IBlockState blockState) {
+        return false;
+    }
+
+    @Override
+    public boolean isOpaqueCube(IBlockState blockState) {
+        return false;
     }
 
 }
