@@ -113,7 +113,7 @@ public class BlockTransmitter extends BlockContainer {
 
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
         TileEntity tileentity = worldIn.getTileEntity(pos);
-        if (tileentity instanceof TileEntityTransmitter) {
+        if (!worldIn.isRemote && tileentity instanceof TileEntityTransmitter) {
             TileEntityTransmitter t = (TileEntityTransmitter) worldIn.getTileEntity(pos);
             if (GuiScreen.isCtrlKeyDown()) {
                 if (heldItem != null) {

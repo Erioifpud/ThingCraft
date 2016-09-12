@@ -3,12 +3,16 @@ package link.redstone.thingcraft.tile;
 import link.redstone.thingcraft.ThingCraft;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -24,13 +28,18 @@ import static link.redstone.thingcraft.ThingCraft.vertexbuffer;
  */
 @SideOnly(Side.CLIENT)
 public class TileEntityTransmitterRenderer extends TileEntitySpecialRenderer<TileEntityTransmitter> {
+    private static final ResourceLocation TOP_TEXTURE = new ResourceLocation("textures/blocks/stone_slab_top.png");
+
     public void renderTileEntityAt(TileEntityTransmitter te, double x, double y, double z, float partialTicks, int destroyStage) {
         super.renderTileEntityAt(te, x, y, z, partialTicks, destroyStage);
+        drawTexture(te, x, y, z);
         renderInfo(te, x, y, z);
-        renderItems(te, x, y, z);
+        renderItemOnTop(te, x + 0.5, y + 17f / 32, z + 0.5);
     }
 
     private void renderInfo(TileEntityTransmitter te, double x, double y, double z) {
+        double d = mc.thePlayer.getDistanceSqToCenter(te.getPos());
+        //if (d <= 5 * 5) {
         float f = mc.getRenderManager().playerViewY;
         float f1 = mc.getRenderManager().playerViewX;
         boolean flag1 = mc.getRenderManager().options.thirdPersonView == 2;
@@ -38,6 +47,7 @@ public class TileEntityTransmitterRenderer extends TileEntitySpecialRenderer<Til
         String fieldId = String.valueOf(te.getFieldId());
         String result = String.valueOf(te.getResult());
         renderText(mc, mc.fontRendererObj, channelId, fieldId, result, (float) x + 0.5f, (float) y + 1.75f, (float) z + 0.5f, f, f1, flag1, false);
+        //}
     }
 
 
@@ -60,9 +70,7 @@ public class TileEntityTransmitterRenderer extends TileEntitySpecialRenderer<Til
         int i = fontRenderer.getStringWidth(text) / 2;
         int j = fontRenderer.getStringWidth(text2) / 2;
         int k = fontRenderer.getStringWidth(text3) / 2;
-        GlStateManager.disableTexture2D();
-        //Tessellator tessellator = Tessellator.getInstance();
-        //VertexBuffer vertexbuffer = tessellator.getBuffer();
+        //GlStateManager.disableTexture2D();
         ThingCraft.vertexbuffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
         vertexbuffer.pos((double) (-i - 1), (double) (-1), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
         vertexbuffer.pos((double) (-i - 1), (double) (8), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
@@ -113,26 +121,75 @@ public class TileEntityTransmitterRenderer extends TileEntitySpecialRenderer<Til
         }
     }
 
-    private void renderItemOnSide(TileEntityTransmitter te, double x, double y, double z, float angle) {
+    private void renderItemOnTop(TileEntityTransmitter te, double x, double y, double z) {
         GlStateManager.pushAttrib();
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
         GlStateManager.disableRescaleNormal();
-        GlStateManager.rotate(angle, 0f, 1f, 0f);
+        GlStateManager.rotate(90, 1f, 0f, 0f);
         renderItem(te);
         GlStateManager.popMatrix();
         GlStateManager.popAttrib();
     }
 
-    private void renderItems(TileEntityTransmitter te, double x, double y, double z) {
+    private void drawTexture(TileEntityTransmitter te, double x, double y, double z) {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, z);
+        GlStateManager.disableLighting();
+        //GlStateManager.enableBlend();
+        GlStateManager.enableTexture2D();
+        GlStateManager.color(52f / 255, 152f / 255, 219f / 255, 1.0F);
+        mc.getTextureManager().bindTexture(TOP_TEXTURE);
+        //top
+        vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.pos(1, 0.5, 1).tex(0, 0).endVertex();
+        vertexbuffer.pos(1, 0.5, 0).tex(0, 1).endVertex();
+        vertexbuffer.pos(0, 0.5, 0).tex(1, 1).endVertex();
+        vertexbuffer.pos(0, 0.5, 1).tex(1, 0).endVertex();
+        tessellator.draw();
+        //bottom
+        vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.pos(0, 0.5, 1).tex(1, 0).endVertex();
+        vertexbuffer.pos(0, 0.5, 0).tex(1, 1).endVertex();
+        vertexbuffer.pos(1, 0.5, 0).tex(0, 1).endVertex();
+        vertexbuffer.pos(1, 0.5, 1).tex(0, 0).endVertex();
+        tessellator.draw();
+        //draw piston side
+        //mc.getTextureManager().bindTexture(SIDE_TEXTURES_1);
         //north
-        renderItemOnSide(te, x + 0.5f, y + 0.5f, z - 0.045f, 0);
+        vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.pos(1, 0.5, 0).tex(0, 0).endVertex();
+        vertexbuffer.pos(1, 0, 0).tex(0, 1).endVertex();
+        vertexbuffer.pos(0, 0, 0).tex(1, 1).endVertex();
+        vertexbuffer.pos(0, 0.5, 0).tex(1, 0).endVertex();
+        tessellator.draw();
         //south
-        renderItemOnSide(te, x + 0.5f, y + 0.5f, z + 1.045f, 180);
-        //west
-        renderItemOnSide(te, x - 0.045f, y + 0.5f, z + 0.5f, 90);
+        vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.pos(0, 0.5, 1).tex(0, 0).endVertex();
+        vertexbuffer.pos(0, 0, 1).tex(0, 1).endVertex();
+        vertexbuffer.pos(1, 0, 1).tex(1, 1).endVertex();
+        vertexbuffer.pos(1, 0.5, 1).tex(1, 0).endVertex();
+        tessellator.draw();
         //east
-        renderItemOnSide(te, x + 1.045f, y + 0.5f, z + 0.5f, 270);
+        vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.pos(1, 0.5, 1).tex(0, 0).endVertex();
+        vertexbuffer.pos(1, 0, 1).tex(0, 1).endVertex();
+        vertexbuffer.pos(1, 0, 0).tex(1, 1).endVertex();
+        vertexbuffer.pos(1, 0.5, 0).tex(1, 0).endVertex();
+        tessellator.draw();
+        //west
+        vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        vertexbuffer.pos(0, 0.5, 0).tex(0, 0).endVertex();
+        vertexbuffer.pos(0, 0, 0).tex(0, 1).endVertex();
+        vertexbuffer.pos(0, 0, 1).tex(1, 1).endVertex();
+        vertexbuffer.pos(0, 0.5, 1).tex(1, 0).endVertex();
+        tessellator.draw();
+        //end piston side
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableLighting();
+        //GlStateManager.disableBlend();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.popMatrix();
     }
 
 
