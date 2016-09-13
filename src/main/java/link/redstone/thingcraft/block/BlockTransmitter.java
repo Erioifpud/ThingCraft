@@ -116,10 +116,9 @@ public class BlockTransmitter extends BlockContainer {
         if (!worldIn.isRemote && tileentity instanceof TileEntityTransmitter) {
             TileEntityTransmitter t = (TileEntityTransmitter) worldIn.getTileEntity(pos);
             if (GuiScreen.isCtrlKeyDown()) {
+                System.out.println(heldItem);
                 if (heldItem != null) {
                     ((TileEntityTransmitter) tileentity).setStack(heldItem);
-                } else {
-                    ((TileEntityTransmitter) tileentity).setStack(null);
                 }
             } else {
                 Minecraft.getMinecraft().displayGuiScreen(new GuiTransmitter(t));

@@ -11,8 +11,14 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityItemFrame;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemSkull;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.storage.MapData;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -22,6 +28,8 @@ import java.awt.*;
 import static link.redstone.thingcraft.ThingCraft.mc;
 import static link.redstone.thingcraft.ThingCraft.tessellator;
 import static link.redstone.thingcraft.ThingCraft.vertexbuffer;
+import static net.minecraft.client.renderer.GlStateManager.depthMask;
+import static net.minecraft.client.renderer.GlStateManager.disableBlend;
 
 /**
  * Created by Erioifpud on 16/9/8.
@@ -34,20 +42,20 @@ public class TileEntityTransmitterRenderer extends TileEntitySpecialRenderer<Til
         super.renderTileEntityAt(te, x, y, z, partialTicks, destroyStage);
         drawTexture(te, x, y, z);
         renderInfo(te, x, y, z);
-        renderItemOnTop(te, x + 0.5, y + 17f / 32, z + 0.5);
+        renderItem(te, x + 0.5, y + 17f / 32, z + 0.5);
     }
 
     private void renderInfo(TileEntityTransmitter te, double x, double y, double z) {
         double d = mc.thePlayer.getDistanceSqToCenter(te.getPos());
-        //if (d <= 5 * 5) {
-        float f = mc.getRenderManager().playerViewY;
-        float f1 = mc.getRenderManager().playerViewX;
-        boolean flag1 = mc.getRenderManager().options.thirdPersonView == 2;
-        String channelId = String.valueOf(te.getChannelId());
-        String fieldId = String.valueOf(te.getFieldId());
-        String result = String.valueOf(te.getResult());
-        renderText(mc, mc.fontRendererObj, channelId, fieldId, result, (float) x + 0.5f, (float) y + 1.75f, (float) z + 0.5f, f, f1, flag1, false);
-        //}
+        if (d <= 5 * 5) {
+            float f = mc.getRenderManager().playerViewY;
+            float f1 = mc.getRenderManager().playerViewX;
+            boolean flag1 = mc.getRenderManager().options.thirdPersonView == 2;
+            String channelId = String.valueOf(te.getChannelId());
+            String fieldId = String.valueOf(te.getFieldId());
+            String result = String.valueOf(te.getResult());
+            renderText(mc, mc.fontRendererObj, channelId, fieldId, result, (float) x + 0.5f, (float) y + 1.75f, (float) z + 0.5f, f, f1, flag1, false);
+        }
     }
 
 
@@ -59,7 +67,7 @@ public class TileEntityTransmitterRenderer extends TileEntitySpecialRenderer<Til
         GlStateManager.rotate((float) (thirdPerson ? -1 : 1) * viewX, 1.0F, 0.0F, 0.0F);
         GlStateManager.scale(-0.025F, -0.025F, 0.025F);
         GlStateManager.disableLighting();
-        GlStateManager.depthMask(false);
+        depthMask(false);
 
         if (!isSneaking) {
             GlStateManager.disableDepth();
@@ -98,47 +106,22 @@ public class TileEntityTransmitterRenderer extends TileEntitySpecialRenderer<Til
             GlStateManager.enableDepth();
         }
 
-        GlStateManager.depthMask(true);
+        depthMask(true);
         fontRenderer.drawString(text, -fontRenderer.getStringWidth(text) / 2, 0, 0xffffff);
         fontRenderer.drawString(text2, -fontRenderer.getStringWidth(text2) / 2, 10, 0xffffff);
         fontRenderer.drawString(text3, -fontRenderer.getStringWidth(text3) / 2, 20, 0xffffff);
         GlStateManager.enableLighting();
-        GlStateManager.disableBlend();
+        disableBlend();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
-    }
-
-    private void renderItem(TileEntityTransmitter te) {
-        ItemStack stack = te.getStack();
-        if (stack != null) {
-            RenderHelper.enableStandardItemLighting();
-            GlStateManager.enableLighting();
-            GlStateManager.pushMatrix();
-            GlStateManager.scale(1f, 1f, 1f);
-            //GlStateManager.translate(0.5f, 0.5f, -0.045f);
-            Minecraft.getMinecraft().getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.NONE);
-            GlStateManager.popMatrix();
-        }
-    }
-
-    private void renderItemOnTop(TileEntityTransmitter te, double x, double y, double z) {
-        GlStateManager.pushAttrib();
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(x, y, z);
-        GlStateManager.disableRescaleNormal();
-        GlStateManager.rotate(90, 1f, 0f, 0f);
-        renderItem(te);
-        GlStateManager.popMatrix();
-        GlStateManager.popAttrib();
     }
 
     private void drawTexture(TileEntityTransmitter te, double x, double y, double z) {
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
         GlStateManager.disableLighting();
-        //GlStateManager.enableBlend();
         GlStateManager.enableTexture2D();
-        GlStateManager.color(52f / 255, 152f / 255, 219f / 255, 1.0F);
+        GlStateManager.color(241f / 255, 196f / 255, 15f / 255, 1.0F);
         mc.getTextureManager().bindTexture(TOP_TEXTURE);
         //top
         vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
@@ -155,7 +138,6 @@ public class TileEntityTransmitterRenderer extends TileEntitySpecialRenderer<Til
         vertexbuffer.pos(1, 0.5, 1).tex(0, 0).endVertex();
         tessellator.draw();
         //draw piston side
-        //mc.getTextureManager().bindTexture(SIDE_TEXTURES_1);
         //north
         vertexbuffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         vertexbuffer.pos(1, 0.5, 0).tex(0, 0).endVertex();
@@ -185,11 +167,31 @@ public class TileEntityTransmitterRenderer extends TileEntitySpecialRenderer<Til
         vertexbuffer.pos(0, 0.5, 1).tex(1, 0).endVertex();
         tessellator.draw();
         //end piston side
-        GlStateManager.disableTexture2D();
         GlStateManager.enableLighting();
-        //GlStateManager.disableBlend();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
+    }
+
+    private void renderItem(TileEntityTransmitter itemFrame, double x, double y, double z) {
+        ItemStack itemstack = itemFrame.getStack();
+        if (itemstack != null) {
+            //EntityItem entityitem = new EntityItem(itemFrame.getWorld(), 0.0D, 0.0D, 0.0D, itemstack);
+            //Item item = entityitem.getEntityItem().getItem();
+            //entityitem.getEntityItem().stackSize = 1;
+            //entityitem.hoverStart = 0.0F;
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(x, y, z);
+            GlStateManager.disableLighting();
+            GlStateManager.rotate(90, 1.0F, 0.0F, 0.0F);
+            GlStateManager.scale(1F, 1F, 1F);
+            GlStateManager.pushAttrib();
+            RenderHelper.enableStandardItemLighting();
+            mc.getRenderItem().renderItem(itemstack, ItemCameraTransforms.TransformType.FIXED);
+            RenderHelper.disableStandardItemLighting();
+            GlStateManager.popAttrib();
+            GlStateManager.enableLighting();
+            GlStateManager.popMatrix();
+        }
     }
 
 
